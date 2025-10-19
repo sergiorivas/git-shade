@@ -30,25 +30,28 @@ git-shade creates a **single unified Git repository** at `~/.local/git-shade/pro
 
 ## Features
 
-✅ **Single unified repo** - One git repository for all projects  
-✅ **Auto-excludes** - Automatically updates `.git/info/exclude`  
-✅ **Conflict detection** - Warns when files modified on both machines  
-✅ **Structure preserving** - Maintains directory hierarchy  
-✅ **Interactive setup** - Auto-pulls existing files when initializing  
-✅ **Status display** - See sync state of all files with colorful output  
+✅ **Single unified repo** - One git repository for all projects
+✅ **Auto-excludes** - Automatically updates `.git/info/exclude`
+✅ **Conflict detection** - Warns when files modified on both machines
+✅ **Structure preserving** - Maintains directory hierarchy
+✅ **Interactive setup** - Auto-pulls existing files when initializing
+✅ **Status display** - See sync state of all files with colorful output
 
 ## Installation
+
+### Homebrew (macOS)
+
+```bash
+brew tap sergiorivas/git-shade https://github.com/sergiorivas/git-shade
+brew install git-shade
+```
+
+This works on both Intel and Apple Silicon Macs.
 
 ### From Source
 
 ```bash
-cargo install --path .
-```
-
-Or build manually:
-
-```bash
-git clone https://github.com/yourusername/git-shade.git
+git clone https://github.com/sergiorivas/git-shade.git
 cd git-shade
 cargo build --release
 sudo cp target/release/git-shade /usr/local/bin/
@@ -418,6 +421,35 @@ cargo test
 cargo run -- init
 cargo run -- add config.local
 cargo run -- status
+```
+
+### Releasing (Maintainers)
+
+This project uses an automated release script that handles building, tagging, and publishing to Homebrew:
+
+```bash
+./release.sh
+```
+
+The script will:
+1. Build binaries for both Intel and Apple Silicon Macs
+2. Suggest the next version number (auto-increments patch version)
+3. Create release archives with SHA256 checksums
+4. Create and push a git tag
+5. Create a GitHub release with the binaries
+6. Generate and commit the Homebrew formula
+7. Display installation instructions
+
+**Prerequisites:**
+- [gum](https://github.com/charmbracelet/gum) - For interactive prompts (`brew install gum`)
+- [gh](https://cli.github.com/) - GitHub CLI for creating releases (`brew install gh`)
+- Rust toolchain with macOS targets
+
+The generated Homebrew formula will be in `Formula/git-shade.rb` and users can install with:
+
+```bash
+brew tap sergiorivas/git-shade https://github.com/sergiorivas/git-shade
+brew install git-shade
 ```
 
 ## Architecture
