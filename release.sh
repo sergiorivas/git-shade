@@ -132,7 +132,7 @@ echo -e "${GREEN}✓ GitHub release created${NC}\n"
 echo -e "${GREEN}Step 7: Generating Homebrew formula${NC}"
 
 # Convert binary name to class name (e.g., my-app -> MyApp)
-CLASS_NAME=$(echo "$BINARY_NAME" | sed -r 's/(^|-)(\w)/\U\2/g')
+CLASS_NAME=$(echo "$BINARY_NAME" | awk -F- '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1' OFS="")
 
 # Get description from Cargo.toml
 DESCRIPTION=$(grep '^description = ' Cargo.toml | head -1 | sed 's/description = "\(.*\)"/\1/')
