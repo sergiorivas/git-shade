@@ -140,7 +140,7 @@ DESCRIPTION=$(grep '^description = ' Cargo.toml | head -1 | sed 's/description =
 # Get license from Cargo.toml
 LICENSE=$(grep '^license = ' Cargo.toml | head -1 | sed 's/license = "\(.*\)"/\1/')
 
-FORMULA_FILE="${BINARY_NAME}.rb"
+FORMULA_FILE="Formula/${BINARY_NAME}.rb"
 
 # Extract owner and repo from URL
 if [[ $REPO_URL =~ github.com[:/](.+)/(.+)$ ]]; then
@@ -209,6 +209,7 @@ echo "Version: $TAG"
 echo "Formula: $FORMULA_FILE"
 echo ""
 echo "Users can install with:"
-echo -e "${YELLOW}brew install https://raw.githubusercontent.com/$GITHUB_OWNER/$GITHUB_REPO/main/$FORMULA_FILE${NC}"
+echo -e "${YELLOW}brew tap $GITHUB_OWNER/$GITHUB_REPO${NC}"
+echo -e "${YELLOW}brew install $BINARY_NAME${NC}"
 echo ""
 echo -e "${BLUE}═══════════════════════════════════════${NC}"
