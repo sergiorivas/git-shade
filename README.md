@@ -30,12 +30,12 @@ git-shade creates a **single unified Git repository** at `~/.local/git-shade/pro
 
 ## Features
 
-✅ **Single unified repo** - One git repository for all projects
-✅ **Auto-excludes** - Automatically updates `.git/info/exclude`
-✅ **Conflict detection** - Warns when files modified on both machines
-✅ **Structure preserving** - Maintains directory hierarchy
-✅ **Interactive setup** - Auto-pulls existing files when initializing
-✅ **Status display** - See sync state of all files with colorful output
+- ✅ **Single unified repo** - One git repository for all projects
+- ✅ **Auto-excludes** - Automatically updates `.git/info/exclude`
+- ✅ **Conflict detection** - Warns when files modified on both machines
+- ✅ **Structure preserving** - Maintains directory hierarchy
+- ✅ **Interactive setup** - Auto-pulls existing files when initializing
+- ✅ **Status display** - See sync state of all files with colorful output
 
 ## Installation
 
