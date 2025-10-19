@@ -1,5 +1,8 @@
 [package]
 name = "git-shade"
+description = "CLI tool that maintains a single unified Git repository for all your project's excluded files (configs, secrets, large files)"
+license = "MIT"license = "MIT"
+authors = ["sergiorivas"]
 version = "0.1.0"
 edition = "2021"
 
