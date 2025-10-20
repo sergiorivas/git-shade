@@ -63,8 +63,12 @@ if [ "$CURRENT_CARGO_VERSION" != "$VERSION" ]; then
   
   echo -e "${GREEN}✓ Updated Cargo.toml version to $VERSION${NC}"
   
+  # Update Cargo.lock
+  echo "Updating Cargo.lock..."
+  cargo update --workspace
+  
   # Commit the version change
-  git add Cargo.toml
+  git add Cargo.toml Cargo.lock
   git commit -m "Bump version to $VERSION"
   git push origin main || git push origin master
   echo -e "${GREEN}✓ Version change committed and pushed${NC}\n"
