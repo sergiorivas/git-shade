@@ -13,24 +13,8 @@ REPO_URL=$(git config --get remote.origin.url | sed 's/\.git$//')
 
 echo -e "${BLUE}🚀 Homebrew Formula Release Script${NC}\n"
 
-# Step 1: Build binaries
-echo -e "${GREEN}Step 1: Building binaries for macOS (Intel and ARM)${NC}"
-
-gum spin --spinner dot --title "Installing Rust targets..." -- \
-  rustup target add x86_64-apple-darwin aarch64-apple-darwin
-
-echo "Building for x86_64 (Intel)..."
-gum spin --spinner dot --title "Compiling for x86_64-apple-darwin..." -- \
-  cargo build --release --target x86_64-apple-darwin
-
-echo "Building for aarch64 (Apple Silicon)..."
-gum spin --spinner dot --title "Compiling for aarch64-apple-darwin..." -- \
-  cargo build --release --target aarch64-apple-darwin
-
-echo -e "${GREEN}✓ Binaries built successfully${NC}\n"
-
-# Step 2: Suggest next version
-echo -e "${GREEN}Step 2: Determining next version${NC}"
+# Step 1: Determine next version
+echo -e "${GREEN}Step 1: Determining next version${NC}"
 
 LATEST_TAG=$(git tag --sort=-v:refname | head -1)
 
@@ -65,8 +49,8 @@ TAG="v$VERSION"
 
 echo -e "${GREEN}✓ Will release version: $TAG${NC}\n"
 
-# Step 3: Update Cargo.toml version
-echo -e "${GREEN}Step 3: Updating Cargo.toml version${NC}"
+# Step 2: Update Cargo.toml version
+echo -e "${GREEN}Step 2: Updating Cargo.toml version${NC}"
 
 CURRENT_CARGO_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
 echo "Current Cargo.toml version: $CURRENT_CARGO_VERSION"
@@ -87,6 +71,22 @@ if [ "$CURRENT_CARGO_VERSION" != "$VERSION" ]; then
 else
   echo -e "${GREEN}✓ Cargo.toml already at version $VERSION${NC}\n"
 fi
+
+# Step 3: Build binaries
+echo -e "${GREEN}Step 3: Building binaries for macOS (Intel and ARM)${NC}"
+
+gum spin --spinner dot --title "Installing Rust targets..." -- \
+  rustup target add x86_64-apple-darwin aarch64-apple-darwin
+
+echo "Building for x86_64 (Intel)..."
+gum spin --spinner dot --title "Compiling for x86_64-apple-darwin..." -- \
+  cargo build --release --target x86_64-apple-darwin
+
+echo "Building for aarch64 (Apple Silicon)..."
+gum spin --spinner dot --title "Compiling for aarch64-apple-darwin..." -- \
+  cargo build --release --target aarch64-apple-darwin
+
+echo -e "${GREEN}✓ Binaries built successfully${NC}\n"
 
 # Step 4: Create archives
 echo -e "${GREEN}Step 4: Creating release archives${NC}"
