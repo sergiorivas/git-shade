@@ -65,8 +65,31 @@ TAG="v$VERSION"
 
 echo -e "${GREEN}✓ Will release version: $TAG${NC}\n"
 
-# Step 3: Create archives
-echo -e "${GREEN}Step 3: Creating release archives${NC}"
+# Step 3: Update Cargo.toml version
+echo -e "${GREEN}Step 3: Updating Cargo.toml version${NC}"
+
+CURRENT_CARGO_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+echo "Current Cargo.toml version: $CURRENT_CARGO_VERSION"
+echo "New version: $VERSION"
+
+if [ "$CURRENT_CARGO_VERSION" != "$VERSION" ]; then
+  # Update the version in Cargo.toml
+  sed -i.bak "s/^version = \".*\"/version = \"$VERSION\"/" Cargo.toml
+  rm -f Cargo.toml.bak
+  
+  echo -e "${GREEN}✓ Updated Cargo.toml version to $VERSION${NC}"
+  
+  # Commit the version change
+  git add Cargo.toml
+  git commit -m "Bump version to $VERSION"
+  git push origin main || git push origin master
+  echo -e "${GREEN}✓ Version change committed and pushed${NC}\n"
+else
+  echo -e "${GREEN}✓ Cargo.toml already at version $VERSION${NC}\n"
+fi
+
+# Step 4: Create archives
+echo -e "${GREEN}Step 4: Creating release archives${NC}"
 
 INTEL_ARCHIVE="${BINARY_NAME}-${TAG}-x86_64-apple-darwin.tar.gz"
 ARM_ARCHIVE="${BINARY_NAME}-${TAG}-aarch64-apple-darwin.tar.gz"
@@ -79,8 +102,8 @@ tar -czf "$ARM_ARCHIVE" -C "target/aarch64-apple-darwin/release" "$BINARY_NAME"
 
 echo -e "${GREEN}✓ Archives created${NC}\n"
 
-# Step 4: Calculate SHA256
-echo -e "${GREEN}Step 4: Calculating SHA256 checksums${NC}"
+# Step 5: Calculate SHA256
+echo -e "${GREEN}Step 5: Calculating SHA256 checksums${NC}"
 
 INTEL_SHA256=$(shasum -a 256 "$INTEL_ARCHIVE" | awk '{print $1}')
 ARM_SHA256=$(shasum -a 256 "$ARM_ARCHIVE" | awk '{print $1}')
@@ -89,8 +112,8 @@ echo "Intel SHA256: $INTEL_SHA256"
 echo "ARM SHA256: $ARM_SHA256"
 echo -e "${GREEN}✓ Checksums calculated${NC}\n"
 
-# Step 5: Create git tag
-echo -e "${GREEN}Step 5: Creating git tag${NC}"
+# Step 6: Create git tag
+echo -e "${GREEN}Step 6: Creating git tag${NC}"
 
 if git rev-parse "$TAG" >/dev/null 2>&1; then
   echo -e "${YELLOW}Warning: Tag $TAG already exists${NC}"
@@ -110,8 +133,8 @@ git push origin "$TAG"
 
 echo -e "${GREEN}✓ Tag created and pushed${NC}\n"
 
-# Step 6: Create GitHub release
-echo -e "${GREEN}Step 6: Creating GitHub release${NC}"
+# Step 7: Create GitHub release
+echo -e "${GREEN}Step 7: Creating GitHub release${NC}"
 
 RELEASE_NOTES=$(gum write --placeholder "Release notes (Ctrl+D to finish)..." --char-limit 0)
 
@@ -128,8 +151,8 @@ gh release create "$TAG" \
 
 echo -e "${GREEN}✓ GitHub release created${NC}\n"
 
-# Step 7: Generate Homebrew formula
-echo -e "${GREEN}Step 7: Generating Homebrew formula${NC}"
+# Step 8: Generate Homebrew formula
+echo -e "${GREEN}Step 8: Generating Homebrew formula${NC}"
 
 # Convert binary name to class name (e.g., my-app -> MyApp)
 CLASS_NAME=$(echo "$BINARY_NAME" | awk -F- '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1' OFS="")
@@ -180,8 +203,8 @@ EOF
 
 echo -e "${GREEN}✓ Formula generated: $FORMULA_FILE${NC}\n"
 
-# Step 8: Commit and push formula
-echo -e "${GREEN}Step 8: Committing and pushing formula${NC}"
+# Step 9: Commit and push formula
+echo -e "${GREEN}Step 9: Committing and pushing formula${NC}"
 
 git add "$FORMULA_FILE"
 
@@ -193,8 +216,8 @@ else
   echo -e "${GREEN}✓ Formula committed and pushed${NC}\n"
 fi
 
-# Step 9: Cleanup
-echo -e "${GREEN}Step 9: Cleaning up temporary files${NC}"
+# Step 10: Cleanup
+echo -e "${GREEN}Step 10: Cleaning up temporary files${NC}"
 
 rm -f "$INTEL_ARCHIVE" "$ARM_ARCHIVE"
 
