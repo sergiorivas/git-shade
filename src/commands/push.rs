@@ -100,18 +100,24 @@ pub fn run(message: Option<String>) -> Result<()> {
         .args(["commit", "-m", &commit_msg])
         .output()?;
 
-    if !commit_output.status.success() {
+    let has_changes = if !commit_output.status.success() {
         let stderr = String::from_utf8_lossy(&commit_output.stderr);
+        let stdout = String::from_utf8_lossy(&commit_output.stdout);
         
         // Check if it's "nothing to commit" (not an error)
-        if stderr.contains("nothing to commit") || stderr.contains("no changes added") {
+        if stderr.contains("nothing to commit") 
+            || stderr.contains("no changes added")
+            || stdout.contains("nothing to commit")
+            || stderr.contains("nothing added to commit") {
             println!("  {} No changes to commit", "→".blue());
+            false  // No changes, but not an error
         } else {
             return Err(ShadeError::GitError(format!("git commit failed: {}", stderr)));
         }
     } else {
         println!("  {} Committed: {}", "✓".green(), commit_msg);
-    }
+        true  // Successful commit
+    };
 
     // Check if remote exists
     let remote_output = Command::new("git")
@@ -120,24 +126,30 @@ pub fn run(message: Option<String>) -> Result<()> {
 
     let has_remote = !remote_output.stdout.is_empty();
 
-    if has_remote {
-        // Git push
-        let push_output = Command::new("git")
-            .args(["push"])
-            .output()?;
+    // Only push if there were actual changes
+    if has_changes {
+        if has_remote {
+            // Git push
+            let push_output = Command::new("git")
+                .args(["push"])
+                .output()?;
 
-        if !push_output.status.success() {
-            let stderr = String::from_utf8_lossy(&push_output.stderr);
-            return Err(ShadeError::GitError(format!("git push failed: {}", stderr)));
+            if !push_output.status.success() {
+                let stderr = String::from_utf8_lossy(&push_output.stderr);
+                return Err(ShadeError::GitError(format!("git push failed: {}", stderr)));
+            }
+
+            println!("  {} Pushed to origin/main", "✓".green());
+        } else {
+            println!();
+            println!("{} No remote configured. Changes saved locally only.", "⚠".yellow());
+            println!("  To sync across machines, add a remote:");
+            println!("    cd {}", paths.projects.display());
+            println!("    git remote add origin <url>");
         }
-
-        println!("  {} Pushed to origin/main", "✓".green());
     } else {
         println!();
-        println!("{} No remote configured. Changes saved locally only.", "⚠".yellow());
-        println!("  To sync across machines, add a remote:");
-        println!("    cd {}", paths.projects.display());
-        println!("    git remote add origin <url>");
+        println!("{} Nothing to push - all files are up to date", "→".blue());
     }
 
     println!();
