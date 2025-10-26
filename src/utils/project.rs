@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use std::env;
 use crate::error::{Result, ShadeError};
+use std::env;
+use std::path::PathBuf;
 
 pub fn detect_project_name(name_override: Option<String>) -> Result<String> {
     if let Some(name) = name_override {
@@ -24,9 +24,7 @@ pub fn verify_git_repo() -> Result<PathBuf> {
     let git_dir = current_dir.join(".git");
 
     if !git_dir.exists() {
-        return Err(ShadeError::NotGitRepo {
-            path: current_dir,
-        });
+        return Err(ShadeError::NotGitRepo { path: current_dir });
     }
 
     Ok(current_dir)

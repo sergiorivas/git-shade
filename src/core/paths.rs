@@ -1,9 +1,7 @@
-use std::path::PathBuf;
 use anyhow::{Context, Result};
+use std::path::PathBuf;
 
 pub struct ShadePaths {
-    #[allow(dead_code)]  // Will be used for other operations
-    pub root: PathBuf,
     pub config: PathBuf,
     pub metadata: PathBuf,
     pub projects: PathBuf,
@@ -12,23 +10,22 @@ pub struct ShadePaths {
 // impl = implementation block (like Ruby's class methods)
 impl ShadePaths {
     pub fn new() -> Result<Self> {
-        let home = dirs::home_dir()
-            .ok_or_else(|| anyhow::anyhow!("Could not find home directory"))?;
+        let home =
+            dirs::home_dir().ok_or_else(|| anyhow::anyhow!("Could not find home directory"))?;
 
         let root = home.join(".local/git-shade");
 
-        Ok(Self {  // Self = ShadePaths (like @class in Ruby)
+        Ok(Self {
+            // Self = ShadePaths (like @class in Ruby)
             config: root.join("config.toml"),
             metadata: root.join("metadata"),
             projects: root.join("projects"),
-            root,
         })
     }
 
     // Instance method (&self = readonly access, like Ruby's regular method)
     pub fn ensure_structure(&self) -> Result<()> {
-        std::fs::create_dir_all(&self.metadata)
-            .context("Failed to create metadata directory")?;
+        std::fs::create_dir_all(&self.metadata).context("Failed to create metadata directory")?;
         Ok(())
     }
 
@@ -46,7 +43,7 @@ impl ShadePaths {
     }
 }
 
-#[cfg(test)]  // Only compiled for tests
+#[cfg(test)] // Only compiled for tests
 mod tests {
     use super::*;
 

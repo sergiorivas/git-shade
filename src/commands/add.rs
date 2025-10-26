@@ -1,7 +1,9 @@
-use crate::core::{ShadePaths, Config};
-use crate::git::add_to_exclude;
-use crate::utils::{verify_git_repo, detect_project_name, copy_file_preserve_structure, copy_dir_preserve_structure};
+use crate::core::{Config, ShadePaths};
 use crate::error::{Result, ShadeError};
+use crate::git::add_to_exclude;
+use crate::utils::{
+    copy_dir_preserve_structure, copy_file_preserve_structure, detect_project_name, verify_git_repo,
+};
 use colored::Colorize;
 use std::path::PathBuf;
 
@@ -18,9 +20,7 @@ pub fn run(files: Vec<PathBuf>) -> Result<()> {
     // 4. Verify project is initialized
     let config = Config::load(&paths.config)?;
     if config.find_project(&project_name).is_none() {
-        return Err(ShadeError::NotInitialized {
-            project_name,
-        });
+        return Err(ShadeError::NotInitialized { project_name });
     }
 
     let project_shade_dir = paths.project_shade_dir(&project_name);
@@ -56,10 +56,12 @@ pub fn run(files: Vec<PathBuf>) -> Result<()> {
 
         // Copy to shade
         if full_path.is_dir() {
-            let copied = copy_dir_preserve_structure(&full_path, &project_path, &project_shade_dir)?;
+            let copied =
+                copy_dir_preserve_structure(&full_path, &project_path, &project_shade_dir)?;
             added_files.extend(copied);
         } else {
-            let copied = copy_file_preserve_structure(&full_path, &project_path, &project_shade_dir)?;
+            let copied =
+                copy_file_preserve_structure(&full_path, &project_path, &project_shade_dir)?;
             added_files.push(copied);
         }
     }
@@ -74,7 +76,8 @@ pub fn run(files: Vec<PathBuf>) -> Result<()> {
     }
     println!();
 
-    println!("{} Copied to {}:", 
+    println!(
+        "{} Copied to {}:",
         "✓".green().bold(),
         project_shade_dir.display()
     );

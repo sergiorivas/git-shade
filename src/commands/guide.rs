@@ -21,9 +21,20 @@ pub fn run() {
 }
 
 fn print_header() {
-    println!("{}", "═══════════════════════════════════════════════════════════════".bright_cyan());
-    println!("{}", "                    git-shade User Guide                      ".bright_cyan().bold());
-    println!("{}", "═══════════════════════════════════════════════════════════════".bright_cyan());
+    println!(
+        "{}",
+        "═══════════════════════════════════════════════════════════════".bright_cyan()
+    );
+    println!(
+        "{}",
+        "                    git-shade User Guide                      "
+            .bright_cyan()
+            .bold()
+    );
+    println!(
+        "{}",
+        "═══════════════════════════════════════════════════════════════".bright_cyan()
+    );
 }
 
 fn print_what_is_git_shade() {
@@ -39,17 +50,26 @@ fn print_what_is_git_shade() {
     println!("  • Machine-specific settings");
     println!();
     println!("{}:", "Solution".green().bold());
-    println!("  git-shade maintains a {} at:", "single unified Git repository".bold());
+    println!(
+        "  git-shade maintains a {} at:",
+        "single unified Git repository".bold()
+    );
     println!("    ~/.local/git-shade/projects/");
     println!();
-    println!("  This repository contains excluded files from {} your projects,", "ALL".bold());
+    println!(
+        "  This repository contains excluded files from {} your projects,",
+        "ALL".bold()
+    );
     println!("  organized by project name, so they sync seamlessly across machines.");
 }
 
 fn print_how_it_works() {
     println!("{}", "How It Works".bold().underline());
     println!();
-    println!("  1. You create/clone a {} Git repository", "single unified".bold());
+    println!(
+        "  1. You create/clone a {} Git repository",
+        "single unified".bold()
+    );
     println!("     at ~/.local/git-shade/projects/");
     println!();
     println!("  2. For each project, git-shade:");
@@ -59,13 +79,25 @@ fn print_how_it_works() {
     println!();
     println!("  3. The unified repo structure:");
     println!("     {}", "~/.local/git-shade/".bright_black());
-    println!("       {}", "projects/                   # Single git repo".bright_black());
-    println!("         {}", "myapp/                   # Your first project".green());
+    println!(
+        "       {}",
+        "projects/                   # Single git repo".bright_black()
+    );
+    println!(
+        "         {}",
+        "myapp/                   # Your first project".green()
+    );
     println!("           {}", "config.local".bright_black());
     println!("           {}", "secrets/api.key".bright_black());
-    println!("         {}", "another-project/         # Another project".green());
+    println!(
+        "         {}",
+        "another-project/         # Another project".green()
+    );
     println!("           {}", ".env.local".bright_black());
-    println!("         {}", ".git/                    # One repo for all".cyan().bold());
+    println!(
+        "         {}",
+        ".git/                    # One repo for all".cyan().bold()
+    );
 }
 
 fn print_architecture() {
@@ -76,20 +108,32 @@ fn print_architecture() {
     println!("    ├── metadata/             # Per-project sync tracking");
     println!("    │   └── myapp/");
     println!("    │       └── .shade-sync   # Timestamps (last pull/push)");
-    println!("    └── projects/             # {} Git repo", "Single unified".bold());
+    println!(
+        "    └── projects/             # {} Git repo",
+        "Single unified".bold()
+    );
     println!("        ├── myapp/            # Files for project 1");
     println!("        │   ├── config.local");
     println!("        │   └── secrets/");
     println!("        ├── another-app/      # Files for project 2");
     println!("        │   └── .env.local");
-    println!("        └── .git/             # {} for ALL projects", "One git repo".cyan().bold());
+    println!(
+        "        └── .git/             # {} for ALL projects",
+        "One git repo".cyan().bold()
+    );
     println!();
     println!("  {} ~/projects/myapp/", "Your Project:".green().bold());
     println!("    ├── .git/                 # Main project git repo");
     println!("    │   └── info/exclude      # Patterns added by git-shade");
     println!("    ├── src/");
-    println!("    ├── config.local          # {} Synced by git-shade", "←".yellow());
-    println!("    └── secrets/              # {} Synced by git-shade", "←".yellow());
+    println!(
+        "    ├── config.local          # {} Synced by git-shade",
+        "←".yellow()
+    );
+    println!(
+        "    └── secrets/              # {} Synced by git-shade",
+        "←".yellow()
+    );
 }
 
 fn print_first_time_setup() {
@@ -97,13 +141,19 @@ fn print_first_time_setup() {
     println!();
     println!("{}", "On Your First Machine:".green().bold());
     println!();
-    println!("  {}", "Step 1: Create your unified shade repository".yellow());
+    println!(
+        "  {}",
+        "Step 1: Create your unified shade repository".yellow()
+    );
     println!("  $ mkdir -p ~/.local/git-shade/projects");
     println!("  $ cd ~/.local/git-shade/projects");
     println!("  $ git init");
     println!("  $ git remote add origin git@github.com:you/my-shade-files.git");
     println!();
-    println!("  {}", "Step 2: Initialize git-shade for your project".yellow());
+    println!(
+        "  {}",
+        "Step 2: Initialize git-shade for your project".yellow()
+    );
     println!("  $ cd ~/projects/myapp");
     println!("  $ git-shade init");
     println!("  {} Initialized git-shade for project: myapp", "✓".green());
@@ -119,7 +169,10 @@ fn print_first_time_setup() {
     println!();
     println!("{}", "On Your Second Machine:".blue().bold());
     println!();
-    println!("  {}", "Step 1: Clone your unified shade repository".yellow());
+    println!(
+        "  {}",
+        "Step 1: Clone your unified shade repository".yellow()
+    );
     println!("  $ git clone git@github.com:you/my-shade-files.git \\");
     println!("      ~/.local/git-shade/projects");
     println!();
@@ -128,7 +181,10 @@ fn print_first_time_setup() {
     println!("  $ cd ~/projects/myapp");
     println!("  $ git-shade init");
     println!();
-    println!("  {} git-shade will auto-detect existing files and ask:", "→".blue());
+    println!(
+        "  {} git-shade will auto-detect existing files and ask:",
+        "→".blue()
+    );
     println!("  Found 3 files in shade:");
     println!("    - config.local");
     println!("    - secrets/api.key");
@@ -227,7 +283,10 @@ fn print_sync_states() {
     println!("    Options:");
     println!("      1. Review remote at ~/.local/git-shade/projects/<project>/");
     println!("      2. Manually merge and copy back");
-    println!("      3. Use {} to take remote", "git-shade pull --force".bold());
+    println!(
+        "      3. Use {} to take remote",
+        "git-shade pull --force".bold()
+    );
     println!("      4. Use {} to take local", "git-shade push".bold());
     println!();
     println!("  {} Local Only", "?".bright_black());
@@ -264,11 +323,20 @@ fn print_troubleshooting() {
     println!();
 
     println!("  {} How do I add more projects?", "Q:".cyan().bold());
-    println!("    Just cd to the new project and run {}!", "git-shade init".bold());
+    println!(
+        "    Just cd to the new project and run {}!",
+        "git-shade init".bold()
+    );
     println!("    All projects share the same unified shade repository.");
     println!();
 
-    println!("  {} Can I use git-shade with existing shade repos?", "Q:".cyan().bold());
+    println!(
+        "  {} Can I use git-shade with existing shade repos?",
+        "Q:".cyan().bold()
+    );
     println!("    Yes! Just clone your existing shade repo to");
-    println!("    ~/.local/git-shade/projects/ and run {} in projects.", "git-shade init".bold());
+    println!(
+        "    ~/.local/git-shade/projects/ and run {} in projects.",
+        "git-shade init".bold()
+    );
 }

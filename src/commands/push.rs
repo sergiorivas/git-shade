@@ -1,7 +1,9 @@
-use crate::core::{ShadePaths, Config, Tracker};
-use crate::git::read_exclude;
-use crate::utils::{verify_git_repo, detect_project_name, copy_file_preserve_structure, copy_dir_preserve_structure};
+use crate::core::{Config, ShadePaths, Tracker};
 use crate::error::{Result, ShadeError};
+use crate::git::read_exclude;
+use crate::utils::{
+    copy_dir_preserve_structure, copy_file_preserve_structure, detect_project_name, verify_git_repo,
+};
 use colored::Colorize;
 use std::process::Command;
 
@@ -18,16 +20,14 @@ pub fn run(message: Option<String>) -> Result<()> {
     // 4. Verify project is initialized
     let config = Config::load(&paths.config)?;
     if config.find_project(&project_name).is_none() {
-        return Err(ShadeError::NotInitialized {
-            project_name,
-        });
+        return Err(ShadeError::NotInitialized { project_name });
     }
 
     let project_shade_dir = paths.project_shade_dir(&project_name);
 
     // 5. Get tracked files from .git/info/exclude
     let patterns = read_exclude(&project_path)?;
-    
+
     if patterns.is_empty() {
         return Err(ShadeError::NoFilesTracked);
     }
@@ -80,7 +80,10 @@ pub fn run(message: Option<String>) -> Result<()> {
         format!("[{}] {}", project_name, msg)
     } else {
         let timestamp = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S");
-        format!("[{}] Update from {} - {}", project_name, hostname, timestamp)
+        format!(
+            "[{}] Update from {} - {}",
+            project_name, hostname, timestamp
+        )
     };
 
     // Git add (only this project's directory)
@@ -103,26 +106,28 @@ pub fn run(message: Option<String>) -> Result<()> {
     let has_changes = if !commit_output.status.success() {
         let stderr = String::from_utf8_lossy(&commit_output.stderr);
         let stdout = String::from_utf8_lossy(&commit_output.stdout);
-        
+
         // Check if it's "nothing to commit" (not an error)
-        if stderr.contains("nothing to commit") 
+        if stderr.contains("nothing to commit")
             || stderr.contains("no changes added")
             || stdout.contains("nothing to commit")
-            || stderr.contains("nothing added to commit") {
+            || stderr.contains("nothing added to commit")
+        {
             println!("  {} No changes to commit", "→".blue());
-            false  // No changes, but not an error
+            false // No changes, but not an error
         } else {
-            return Err(ShadeError::GitError(format!("git commit failed: {}", stderr)));
+            return Err(ShadeError::GitError(format!(
+                "git commit failed: {}",
+                stderr
+            )));
         }
     } else {
         println!("  {} Committed: {}", "✓".green(), commit_msg);
-        true  // Successful commit
+        true // Successful commit
     };
 
     // Check if remote exists
-    let remote_output = Command::new("git")
-        .args(["remote", "-v"])
-        .output()?;
+    let remote_output = Command::new("git").args(["remote", "-v"]).output()?;
 
     let has_remote = !remote_output.stdout.is_empty();
 
@@ -130,9 +135,7 @@ pub fn run(message: Option<String>) -> Result<()> {
     if has_changes {
         if has_remote {
             // Git push
-            let push_output = Command::new("git")
-                .args(["push"])
-                .output()?;
+            let push_output = Command::new("git").args(["push"]).output()?;
 
             if !push_output.status.success() {
                 let stderr = String::from_utf8_lossy(&push_output.stderr);
@@ -142,7 +145,10 @@ pub fn run(message: Option<String>) -> Result<()> {
             println!("  {} Pushed to origin/main", "✓".green());
         } else {
             println!();
-            println!("{} No remote configured. Changes saved locally only.", "⚠".yellow());
+            println!(
+                "{} No remote configured. Changes saved locally only.",
+                "⚠".yellow()
+            );
             println!("  To sync across machines, add a remote:");
             println!("    cd {}", paths.projects.display());
             println!("    git remote add origin <url>");
@@ -155,8 +161,8 @@ pub fn run(message: Option<String>) -> Result<()> {
     println!();
 
     // 8. Update tracker
-    let mut tracker = Tracker::load(&paths.shade_sync_file(&project_name))
-        .unwrap_or_else(|_| Tracker::new());
+    let mut tracker =
+        Tracker::load(&paths.shade_sync_file(&project_name)).unwrap_or_else(|_| Tracker::new());
     tracker.update_push();
     tracker.save(&paths.shade_sync_file(&project_name))?;
 

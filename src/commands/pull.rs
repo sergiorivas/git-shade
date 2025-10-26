@@ -1,7 +1,10 @@
-use crate::core::{ShadePaths, Config, Tracker, FileMetadata, SyncState, ConflictInfo, detect_sync_state, format_conflict_message};
-use crate::git::{read_exclude, add_to_exclude};
-use crate::utils::{verify_git_repo, detect_project_name, copy_file_preserve_structure};
+use crate::core::{
+    detect_sync_state, format_conflict_message, Config, ConflictInfo, FileMetadata, ShadePaths,
+    SyncState, Tracker,
+};
 use crate::error::{Result, ShadeError};
+use crate::git::{add_to_exclude, read_exclude};
+use crate::utils::{copy_file_preserve_structure, detect_project_name, verify_git_repo};
 use colored::Colorize;
 use std::process::Command;
 use walkdir::WalkDir;
@@ -19,24 +22,20 @@ pub fn run(force: bool, dry_run: bool) -> Result<()> {
     // 4. Verify project is initialized
     let config = Config::load(&paths.config)?;
     if config.find_project(&project_name).is_none() {
-        return Err(ShadeError::NotInitialized {
-            project_name,
-        });
+        return Err(ShadeError::NotInitialized { project_name });
     }
 
     let project_shade_dir = paths.project_shade_dir(&project_name);
 
     // 5. Pull from git remote
     println!("Pulling from shade repo...");
-    
+
     if !dry_run {
         // Change to shade projects directory
         let original_dir = std::env::current_dir()?;
         std::env::set_current_dir(&paths.projects)?;
 
-        let pull_output = Command::new("git")
-            .args(["pull"])
-            .output()?;
+        let pull_output = Command::new("git").args(["pull"]).output()?;
 
         // Change back
         std::env::set_current_dir(&original_dir)?;
@@ -56,7 +55,9 @@ pub fn run(force: bool, dry_run: bool) -> Result<()> {
     if !updated_projects.is_empty() {
         print!("  Updated: ");
         for (i, proj) in updated_projects.iter().enumerate() {
-            if i > 0 { print!(", "); }
+            if i > 0 {
+                print!(", ");
+            }
             print!("{}", proj);
         }
         println!();
@@ -64,13 +65,13 @@ pub fn run(force: bool, dry_run: bool) -> Result<()> {
     println!();
 
     // 6. Load tracker to get last_pull time
-    let tracker = Tracker::load(&paths.shade_sync_file(&project_name))
-        .unwrap_or_else(|_| Tracker::new());
+    let tracker =
+        Tracker::load(&paths.shade_sync_file(&project_name)).unwrap_or_else(|_| Tracker::new());
     let last_pull = tracker.last_pull;
 
     // 7. Get all files from shade directory
     let shade_files = list_all_files(&project_shade_dir)?;
-    
+
     if shade_files.is_empty() {
         println!("No files in shade directory.");
         return Ok(());
@@ -81,14 +82,14 @@ pub fn run(force: bool, dry_run: bool) -> Result<()> {
 
     // 9. Analyze sync state for each file
     println!("Checking for conflicts in {}...", project_name);
-    
+
     let mut conflicts = Vec::new();
     let mut files_to_sync = Vec::new();
     let mut files_to_add_to_exclude = Vec::new();
 
     for shade_file_path in &shade_files {
         let local_file_path = project_path.join(shade_file_path);
-        
+
         // Get metadata
         let local_meta = if local_file_path.exists() {
             Some(FileMetadata::from_path(&local_file_path)?)
@@ -104,11 +105,7 @@ pub fn run(force: bool, dry_run: bool) -> Result<()> {
         };
 
         // Detect state
-        let state = detect_sync_state(
-            local_meta.as_ref(),
-            remote_meta.as_ref(),
-            last_pull,
-        );
+        let state = detect_sync_state(local_meta.as_ref(), remote_meta.as_ref(), last_pull);
 
         match state {
             SyncState::Conflict => {
@@ -123,31 +120,37 @@ pub fn run(force: bool, dry_run: bool) -> Result<()> {
                     // Force mode: treat as remote ahead
                     files_to_sync.push((shade_file_path.clone(), "overwritten".to_string()));
                 }
-            },
+            }
             SyncState::RemoteAhead | SyncState::RemoteOnly => {
                 files_to_sync.push((shade_file_path.clone(), "copied".to_string()));
-                
+
                 // Check if this file is tracked in exclude
                 let pattern = shade_file_path.to_string_lossy().to_string();
                 if !tracked_patterns.contains(&pattern) {
                     files_to_add_to_exclude.push(pattern);
                 }
-            },
+            }
             SyncState::InSync => {
                 // No action needed
-            },
+            }
             SyncState::LocalAhead | SyncState::LocalOnly => {
                 // Skip - local is ahead or only exists locally
-            },
+            }
         }
     }
 
     // 10. Handle conflicts
     if !conflicts.is_empty() && !force {
         println!();
-        println!("{}", format_conflict_message(&conflicts, &project_shade_dir));
+        println!(
+            "{}",
+            format_conflict_message(&conflicts, &project_shade_dir)
+        );
         return Err(ShadeError::ConflictDetected {
-            files: conflicts.iter().map(|c| c.file.to_string_lossy().to_string()).collect(),
+            files: conflicts
+                .iter()
+                .map(|c| c.file.to_string_lossy().to_string())
+                .collect(),
         });
     }
 
@@ -174,8 +177,12 @@ pub fn run(force: bool, dry_run: bool) -> Result<()> {
             let src = project_shade_dir.join(file_path);
             copy_file_preserve_structure(&src, &project_shade_dir, &project_path)?;
         }
-        
-        let symbol = if *action == "overwritten" { "✓" } else { "↓" };
+
+        let symbol = if *action == "overwritten" {
+            "✓"
+        } else {
+            "↓"
+        };
         println!("  {} {} ({})", symbol.green(), file_path.display(), action);
     }
 
@@ -188,8 +195,8 @@ pub fn run(force: bool, dry_run: bool) -> Result<()> {
 
     // 13. Update tracker
     if !dry_run {
-        let mut tracker = Tracker::load(&paths.shade_sync_file(&project_name))
-            .unwrap_or_else(|_| Tracker::new());
+        let mut tracker =
+            Tracker::load(&paths.shade_sync_file(&project_name)).unwrap_or_else(|_| Tracker::new());
         tracker.update_pull();
         tracker.save(&paths.shade_sync_file(&project_name))?;
 
@@ -222,7 +229,7 @@ fn list_all_files(dir: &std::path::Path) -> Result<Vec<std::path::PathBuf>> {
 
     for entry in WalkDir::new(dir).min_depth(1) {
         let entry = entry.map_err(|e| anyhow::anyhow!("Failed to read directory: {}", e))?;
-        
+
         if entry.file_type().is_file() {
             if let Ok(rel) = entry.path().strip_prefix(dir) {
                 files.push(rel.to_path_buf());

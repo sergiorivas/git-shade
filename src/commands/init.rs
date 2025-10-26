@@ -1,6 +1,6 @@
-use crate::core::{ShadePaths, Config, Tracker};
-use crate::utils::{detect_project_name, verify_git_repo};
+use crate::core::{Config, ShadePaths, Tracker};
 use crate::error::{Result, ShadeError};
+use crate::utils::{detect_project_name, verify_git_repo};
 use colored::Colorize;
 use dialoguer::Confirm;
 use std::fs;
@@ -45,7 +45,8 @@ pub fn run(name_override: Option<String>) -> Result<()> {
     config.save(&paths.config)?;
 
     // 10. Print success
-    println!("{} Initialized git-shade for project: {}",
+    println!(
+        "{} Initialized git-shade for project: {}",
         "✓".green().bold(),
         project_name.bold()
     );

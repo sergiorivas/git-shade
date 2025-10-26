@@ -1,6 +1,6 @@
-pub mod init;
 pub mod add;
-pub mod push;
-pub mod pull;
-pub mod status;
 pub mod guide;
+pub mod init;
+pub mod pull;
+pub mod push;
+pub mod status;

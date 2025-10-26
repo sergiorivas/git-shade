@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
-use std::path::Path;
 use anyhow::Result;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::path::Path;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Tracker {
@@ -17,7 +17,6 @@ impl Tracker {
         }
     }
 
-    #[allow(dead_code)]  // Not yet used
     pub fn load(path: &Path) -> Result<Self> {
         if !path.exists() {
             return Ok(Self::new());
@@ -39,12 +38,10 @@ impl Tracker {
         Ok(())
     }
 
-    #[allow(dead_code)]  // Not yet used
     pub fn update_pull(&mut self) {
         self.last_pull = Some(Utc::now());
     }
 
-    #[allow(dead_code)]  // Not yet used
     pub fn update_push(&mut self) {
         self.last_push = Some(Utc::now());
     }

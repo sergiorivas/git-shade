@@ -1,9 +1,9 @@
 mod cli;
-mod error;
-mod core;
-mod utils;
 mod commands;
+mod core;
+mod error;
 mod git;
+mod utils;
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -28,6 +28,6 @@ fn run() -> Result<()> {
         Commands::Guide => {
             commands::guide::run();
             Ok(())
-        },
+        }
     }
 }

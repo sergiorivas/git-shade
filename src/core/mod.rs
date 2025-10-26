@@ -1,11 +1,11 @@
-pub mod paths;
 pub mod config;
-pub mod tracker;
-pub mod sync;
 pub mod conflict;
+pub mod paths;
+pub mod sync;
+pub mod tracker;
 
-pub use paths::ShadePaths;
 pub use config::Config;
+pub use conflict::{format_conflict_message, ConflictInfo};
+pub use paths::ShadePaths;
+pub use sync::{detect_sync_state, FileMetadata, SyncState};
 pub use tracker::Tracker;
-pub use sync::{SyncState, FileMetadata, detect_sync_state};
-pub use conflict::{ConflictInfo, format_conflict_message};

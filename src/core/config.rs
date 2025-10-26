@@ -1,11 +1,11 @@
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use anyhow::{Context, Result};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     pub version: String,
-    #[serde(default)]  // If missing in TOML, use Vec::new()
+    #[serde(default)] // If missing in TOML, use Vec::new()
     pub projects: Vec<Project>,
 }
 
@@ -24,25 +24,21 @@ impl Config {
             });
         }
 
-        let contents = std::fs::read_to_string(path)
-            .context("Failed to read config file")?;
+        let contents = std::fs::read_to_string(path).context("Failed to read config file")?;
 
-        let config: Config = toml::from_str(&contents)
-            .context("Failed to parse config file")?;
+        let config: Config = toml::from_str(&contents).context("Failed to parse config file")?;
 
         Ok(config)
     }
 
     pub fn save(&self, path: &Path) -> Result<()> {
-        let contents = toml::to_string_pretty(self)
-            .context("Failed to serialize config")?;
+        let contents = toml::to_string_pretty(self).context("Failed to serialize config")?;
 
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
 
-        std::fs::write(path, contents)
-            .context("Failed to write config file")?;
+        std::fs::write(path, contents).context("Failed to write config file")?;
 
         Ok(())
     }
@@ -78,10 +74,12 @@ mod tests {
             projects: Vec::new(),
         };
 
-        config.add_project(
-            "myapp".to_string(),
-            PathBuf::from("/home/user/projects/myapp")
-        ).unwrap();
+        config
+            .add_project(
+                "myapp".to_string(),
+                PathBuf::from("/home/user/projects/myapp"),
+            )
+            .unwrap();
 
         config.save(&config_path).unwrap();
 
