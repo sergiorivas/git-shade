@@ -1,16 +1,16 @@
 class GitShade < Formula
   desc "CLI tool that maintains a single unified Git repository for all your project's excluded files (configs, secrets, large files)"
   homepage "https://sergiorivas@github.com/sergiorivas/git-shade"
-  version "1.0.12"
+  version "1.0.13"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/sergiorivas/git-shade/releases/download/v1.0.12/git-shade-v1.0.12-x86_64-apple-darwin.tar.gz"
-      sha256 "dc7e54cb30a9a31225d515d932dc4dda3a3c19d4fe73a1c9ad7c542ae419ed9b"
+      url "https://github.com/sergiorivas/git-shade/releases/download/v1.0.13/git-shade-v1.0.13-x86_64-apple-darwin.tar.gz"
+      sha256 "461bdfe370f34b64c30a85a153385fd3a87fa14dcb2b1b5cec97eb2290c0857b"
     else
-      url "https://github.com/sergiorivas/git-shade/releases/download/v1.0.12/git-shade-v1.0.12-aarch64-apple-darwin.tar.gz"
-      sha256 "0e51a1bea3cdbaa11c1197ddc1d2b308ff680ffef3d3bc6a35982ee434a5089c"
+      url "https://github.com/sergiorivas/git-shade/releases/download/v1.0.13/git-shade-v1.0.13-aarch64-apple-darwin.tar.gz"
+      sha256 "c13b3e290b3da1f8defb1cc517ad1c9498f9ca3628dc36a8ab9c4e19053ce910"
     end
   end
 
